@@ -1,72 +1,63 @@
-import React, { useContext } from 'react';
-import { ThemeContext } from '../contexts/ThemeContext';
+import React from 'react';
 import { dummyPosts } from '../data/dummyData';
 
-const renderCategoryIcon = (category) => {
-  switch (category) {
-    case 'קוד': return '< >';
-    case 'מתמטיקה': return '∫';
-    case 'שירה': return '~';
-    default: return '•';
+const getCategoryIcon = (category) => {
+  switch(category) {
+    case 'קוד': 
+      return <span className="font-mono text-xl font-thin text-[#c4a993]/80 dark:text-[#a8907b]/80 tracking-widest">&lt;&gt;</span>;
+    case 'מתמטיקה': 
+      return <span className="font-serif text-3xl font-thin text-[#c4a993]/80 dark:text-[#a8907b]/80">∫</span>;
+    case 'שירה': 
+      return (
+        <svg className="w-5 h-5 text-[#c4a993]/80 dark:text-[#a8907b]/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.75" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+        </svg>
+      );
+    case 'אוכל': 
+      return <svg className="w-5 h-5 text-[#c4a993]/80 dark:text-[#a8907b]/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.75" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>;
+    case 'מחשבות':
+      return (
+        <svg className="w-5 h-5 text-[#c4a993]/80 dark:text-[#a8907b]/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.75" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+        </svg>
+      );
+    default: 
+      return <span className="font-mono text-xl font-thin text-[#c4a993]/80 dark:text-[#a8907b]/80">&lt;&gt;</span>;
   }
 };
 
-export default function Home({ navigateTo, activeCategory }) {
-  const { isDark } = useContext(ThemeContext);
-  
+export default function Home({ activeCategory, navigateTo }) {
   const filteredPosts = activeCategory === 'הכל' 
     ? dummyPosts 
-    : dummyPosts.filter(p => p.category === activeCategory);
+    : dummyPosts.filter(post => post.category === activeCategory);
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-32 min-h-screen pb-40">
-      
-      {/* אזור הפתיחה (Hero) - נותן נפח לעמוד כשהוא נטען */}
-      {activeCategory === 'הכל' && (
-        <div className="mb-24 mt-8 animate-fade-in">
-          <h2 className="text-2xl font-light mb-6 opacity-70">ברוכות הבאות,</h2>
-          <p className="text-3xl sm:text-4xl leading-relaxed font-light">
-            כאן אני אוספת את המחשבות שלי על <span className="font-bold opacity-90">קוד</span>, משרטטת תובנות של <span className="font-bold opacity-90">מתמטיקה</span>, ומוצאת את השקט שבין לבין.
-          </p>
-        </div>
-      )}
-
-      {/* אזור הפוסטים */}
-      <div className="flex flex-col gap-12 sm:gap-0 sm:flex-col sm:overflow-visible overflow-x-auto snap-x snap-mandatory flex-row pb-8 scrollbar-hide">
+    <div className="max-w-3xl mx-auto px-6 pt-36 pb-32 min-h-screen relative z-10">
+      <div className="flex flex-col">
         {filteredPosts.map((post) => (
-          <button 
-            key={post.id}
-            onClick={() => navigateTo('post')}
-            className={`min-w-[85vw] sm:min-w-0 snap-center text-right group py-10 transition-all duration-500 focus:outline-none relative border-b-[0.5px] ${isDark ? 'border-stone-800/50 hover:border-transparent' : 'border-stone-200/50 hover:border-transparent'}`}
+          <article 
+            key={post.id} 
+            className="group cursor-pointer relative py-10 px-4 transition-all duration-500"
+            onClick={() => navigateTo('post', post.id)}
           >
-            <div className={`absolute top-0 right-0 left-0 h-[0.5px] scale-x-0 group-hover:scale-x-100 origin-center transition-transform duration-700 ease-out ${isDark ? 'bg-stone-500' : 'bg-stone-300'}`}></div>
-            <div className={`absolute bottom-0 right-0 left-0 h-[0.5px] scale-x-0 group-hover:scale-x-100 origin-center transition-transform duration-700 ease-out ${isDark ? 'bg-stone-500' : 'bg-stone-300'}`}></div>
+            <div className="absolute bottom-0 left-4 right-4 h-[0.5px] bg-stone-300/30 dark:bg-stone-700/30 transition-all duration-700 group-hover:bg-[#c4a993] dark:group-hover:bg-[#a8907b] group-hover:h-[1px] group-hover:shadow-[0_0_8px_rgba(196,169,147,0.3)]"></div>
             
-            <div className="relative z-10 px-6">
-              <div className="flex justify-between items-baseline mb-4">
-                <h2 className="text-3xl font-light tracking-wide flex items-center transition-transform duration-500 group-hover:-translate-x-2">
-                   {post.title}
+            <div className="flex items-start justify-between gap-6">
+              <div className="flex-1">
+                <h2 className="text-4xl font-light mb-4 text-[#5c4a3d] dark:text-[#e6dfd8] transition-all duration-500 group-hover:opacity-80">
+                  {post.title}
                 </h2>
-                <div className="flex items-center opacity-0 group-hover:opacity-100 transition-all duration-500 -translate-x-4 group-hover:translate-x-0">
-                  <span className={`text-2xl font-serif mt-1 ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
-                    {renderCategoryIcon(post.category)}
-                  </span>
-                </div>
+                <p className="text-xl font-light text-stone-500 dark:text-[#bba99a] leading-relaxed">
+                  {post.excerpt}
+                </p>
               </div>
-              <p className={`text-lg font-light leading-relaxed mb-4 opacity-70 group-hover:opacity-100 transition-opacity duration-300 ${isDark ? 'text-stone-400' : 'text-stone-600'}`}>
-                {post.excerpt}
-              </p>
-              <div className={`text-sm tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${isDark ? 'text-stone-600' : 'text-stone-300'}`}>
-                {post.readTime}
+              
+              <div className="flex-shrink-0 pt-2 opacity-0 group-hover:opacity-100 transition-all duration-700 translate-x-2 group-hover:translate-x-0">
+                {getCategoryIcon(post.category)}
               </div>
             </div>
-          </button>
+          </article>
         ))}
-        {filteredPosts.length === 0 && (
-          <div className="text-center text-xl mt-20 opacity-50">
-            עדיין לא כתבתי על זה...
-          </div>
-        )}
       </div>
     </div>
   );

@@ -10,7 +10,12 @@ export default function Header({ navigateTo }) {
         onClick={() => navigateTo('home')}
       >
         <div className="flex items-baseline gap-2 mb-1">
-          <span className="text-[#5c4a3d] dark:text-[#a8907b] text-6xl font-bold leading-none -mt-2 transition-colors duration-700">;</span>
+          <span 
+            onDoubleClick={(e) => { e.stopPropagation(); navigateTo('admin'); }}
+            className="text-[#5c4a3d] dark:text-[#a8907b] text-6xl font-bold leading-none -mt-2 transition-colors duration-700 cursor-pointer"
+          >
+            ;
+          </span>
           <h1 className="text-5xl font-bold tracking-wide text-[#5c4a3d] dark:text-[#a8907b] leading-none font-['Tinos'] transition-colors duration-700">
             נקודה פסיק
           </h1>
