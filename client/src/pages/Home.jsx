@@ -1,5 +1,7 @@
-import React from 'react';
-import { dummyPosts } from '../data/dummyData';
+import React, { useState, useEffect } from 'react';
+import ScrollReveal from '../components/ScrollReveal';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+fetch(`${API_URL}/api/posts`)
 
 const getCategoryIcon = (category) => {
   switch(category) {
@@ -27,37 +29,78 @@ const getCategoryIcon = (category) => {
 };
 
 export default function Home({ activeCategory, navigateTo }) {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/posts')
+      .then((res) => {
+        if (!res.ok) throw new Error('שגיאה בטעינת הפוסטים');
+        return res.json();
+      })
+      .then((data) => {
+        setPosts(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
+
   const filteredPosts = activeCategory === 'הכל' 
-    ? dummyPosts 
-    : dummyPosts.filter(post => post.category === activeCategory);
+    ? posts 
+    : posts.filter(post => post.category === activeCategory);
+
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto px-6 pt-36 text-center text-stone-400">
+        טוען פוסטים...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-3xl mx-auto px-6 pt-36 text-center text-red-400">
+        שגיאה בהתחברות לשרת: {error}
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto px-6 pt-36 pb-32 min-h-screen relative z-10">
       <div className="flex flex-col">
-        {filteredPosts.map((post) => (
-          <article 
-            key={post.id} 
-            className="group cursor-pointer relative py-10 px-4 transition-all duration-500"
-            onClick={() => navigateTo('post', post.id)}
-          >
-            <div className="absolute bottom-0 left-4 right-4 h-[0.5px] bg-stone-300/30 dark:bg-stone-700/30 transition-all duration-700 group-hover:bg-[#c4a993] dark:group-hover:bg-[#a8907b] group-hover:h-[1px] group-hover:shadow-[0_0_8px_rgba(196,169,147,0.3)]"></div>
-            
-            <div className="flex items-start justify-between gap-6">
-              <div className="flex-1">
-                <h2 className="text-4xl font-light mb-4 text-[#5c4a3d] dark:text-[#e6dfd8] transition-all duration-500 group-hover:opacity-80">
-                  {post.title}
-                </h2>
-                <p className="text-xl font-light text-stone-500 dark:text-[#bba99a] leading-relaxed">
-                  {post.excerpt}
-                </p>
-              </div>
-              
-              <div className="flex-shrink-0 pt-2 opacity-0 group-hover:opacity-100 transition-all duration-700 translate-x-2 group-hover:translate-x-0">
-                {getCategoryIcon(post.category)}
-              </div>
-            </div>
-          </article>
-        ))}
+        {filteredPosts.length === 0 ? (
+          <p className="text-center text-stone-400 py-12">לא נמצאו פוסטים בקטגוריה זו.</p>
+        ) : (
+          filteredPosts.map((post, index) => (
+            <ScrollReveal key={post._id} delay={index * 150}>
+              <article 
+                className="group cursor-pointer relative py-10 px-4 transition-all duration-500"
+                onClick={() => navigateTo('post', post._id)}
+              >
+                <div className="absolute bottom-0 left-4 right-4 h-[0.5px] bg-stone-300/30 dark:bg-stone-700/30 transition-all duration-700 group-hover:bg-[#c4a993] dark:group-hover:bg-[#a8907b] group-hover:h-[1px] group-hover:shadow-[0_0_8px_rgba(196,169,147,0.3)]"></div>
+                
+                <div className="flex items-start justify-between gap-6">
+                  <div className="flex-1">
+                    <h2 className="text-4xl font-light mb-4 text-[#5c4a3d] dark:text-[#e6dfd8] transition-all duration-500 group-hover:opacity-80">
+                      {post.title}
+                    </h2>
+                    <p className="text-xl font-light text-stone-500 dark:text-[#bba99a] leading-relaxed">
+                      {post.excerpt}
+                    </p>
+                  </div>
+                  
+                  <div className="flex-shrink-0 pt-2 opacity-0 group-hover:opacity-100 transition-all duration-700 translate-x-2 group-hover:translate-x-0">
+                    {getCategoryIcon(post.category)}
+                  </div>
+                </div>
+              </article>
+            </ScrollReveal>
+          ))
+        )}
       </div>
     </div>
   );

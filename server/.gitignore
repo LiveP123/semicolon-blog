@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+server/node_modules/
+client/node_modules/
+
+# Environment variables (משתני סביבה וסיסמאות)
+.env
+server/.env
+client/.env
+
+# Build outputs
+dist/
+build/
+
+# OS / IDE files
+.DS_Store
+.vscode/

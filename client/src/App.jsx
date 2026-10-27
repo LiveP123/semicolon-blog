@@ -9,8 +9,10 @@ import About from './pages/About.jsx';
 import Admin from './pages/Admin';
 
 function AppContent() {
-  const [currentPage, setCurrentPage] = useState('home');
-  const [activeCategory, setActiveCategory] = useState('הכל');
+const [currentPage, setCurrentPage] = useState(() => {
+  const path = window.location.pathname.replace('/', '');
+  return path || 'home';
+});  const [activeCategory, setActiveCategory] = useState('הכל');
   const [postId, setPostId] = useState(null);
 
   useEffect(() => {
