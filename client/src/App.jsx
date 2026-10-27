@@ -6,83 +6,118 @@ import CompassMenu from './components/CompassMenu.jsx';
 import Home from './pages/Home.jsx';
 import PostPage from './pages/PostPage.jsx';
 import About from './pages/About.jsx';
-import Admin from './pages/Admin';
+import Admin from './pages/Admin.jsx';
+
+function parseRoute() {
+  const pathname = window.location.pathname.replace(/^\/+/, '');
+  const parts = pathname.split('/').filter(Boolean);
+
+  if (!parts.length) {
+    return { page: 'home', postId: null };
+  }
+
+  const [first, second] = parts;
+
+  if (first === 'about') {
+    return { page: 'about', postId: null };
+  }
+
+  if (first === 'admin') {
+    return { page: 'admin', postId: null };
+  }
+
+  if (first === 'post' && second) {
+    return { page: 'post', postId: second };
+  }
+
+  if (first === 'home') {
+    return { page: 'home', postId: null };
+  }
+
+  return { page: 'home', postId: null };
+}
 
 function AppContent() {
-const [currentPage, setCurrentPage] = useState(() => {
-  const path = window.location.pathname.replace('/', '');
-  return path || 'home';
-});  const [activeCategory, setActiveCategory] = useState('הכל');
-  const [postId, setPostId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(() => parseRoute().page);
+  const [postId, setPostId] = useState(() => parseRoute().postId);
+  const [activeCategory, setActiveCategory] = useState('הכל');
 
   useEffect(() => {
-    const handlePopState = (event) => {
-      if (event.state) {
-        setCurrentPage(event.state.page || 'home');
-        setPostId(event.state.postId || null);
-      } else {
-        setCurrentPage('home');
-      }
+    const syncFromUrl = () => {
+      const route = parseRoute();
+      setCurrentPage(route.page);
+      setPostId(route.postId);
     };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+
+    window.addEventListener('popstate', syncFromUrl);
+    syncFromUrl();
+
+    return () => {
+      window.removeEventListener('popstate', syncFromUrl);
+    };
   }, []);
 
   const navigateTo = (page, id = null) => {
-    window.history.pushState({ page, postId: id }, '', `/${page}${id ? `/${id}` : ''}`);
+    let nextUrl = '/';
+
+    if (page === 'about') nextUrl = '/about';
+    else if (page === 'admin') nextUrl = '/admin';
+    else if (page === 'post' && id) nextUrl = `/post/${id}`;
+    else if (page === 'home') nextUrl = '/';
+
+    window.history.pushState({ page, postId: id }, '', nextUrl);
     setCurrentPage(page);
-    if (id) setPostId(id);
+    setPostId(id || null);
     window.scrollTo(0, 0);
   };
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'home': return <Home navigateTo={navigateTo} activeCategory={activeCategory} />;
-      case 'post': return <PostPage postId={postId} navigateTo={navigateTo} />;
-      case 'about': return <About />;
-      case 'admin': return <Admin navigateTo={navigateTo} />;
-      default: return <Home navigateTo={navigateTo} activeCategory={activeCategory} />;
+      case 'home':
+        return <Home navigateTo={navigateTo} activeCategory={activeCategory} />;
+      case 'post':
+        return <PostPage postId={postId} navigateTo={navigateTo} />;
+      case 'about':
+        return <About />;
+      case 'admin':
+        return <Admin navigateTo={navigateTo} />;
+      default:
+        return <Home navigateTo={navigateTo} activeCategory={activeCategory} />;
     }
   };
-  
+
   return (
     <div className="transition-all duration-700 min-h-screen bg-[#FDFBF7] dark:bg-slate-900 text-[#5c4a3d] dark:text-[#d4c8be] relative z-0 flex flex-col justify-between">
-      
-      {/* שכבת הרקע */}
       <AbstractBackground />
-      
-      {/* שכבת התوכן */}
+
       <div className="relative z-10">
         <Header navigateTo={navigateTo} />
 
-        <CompassMenu 
-          navigateTo={navigateTo} 
-          currentPage={currentPage} 
+        <CompassMenu
+          navigateTo={navigateTo}
+          currentPage={currentPage}
           activeCategory={activeCategory}
           setActiveCategory={setActiveCategory}
         />
-        
-        <main>
-          {renderPage()}
-        </main>
+
+        <main>{renderPage()}</main>
       </div>
 
-      {/* שורה תחתונה - קרדיט CWeb */}
       <footer className="relative z-10 py-8 text-center text-xs font-light text-stone-400 dark:text-stone-600 tracking-wider">
         Designed & Built by CWeb
       </footer>
-      
-      <style dangerouslySetInnerHTML={{__html: `
+
+      <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap');
-        
+
         :root {
           direction: rtl;
         }
-        
+
         body {
           font-family: 'Tinos', serif;
         }
-        
+
         .font-serif, .font-sans {
           font-family: 'Tinos', serif !important;
         }
@@ -90,20 +125,21 @@ const [currentPage, setCurrentPage] = useState(() => {
         .dir-ltr {
           direction: ltr;
         }
-        
+
         .secure-text-area {
           user-select: none;
           -webkit-user-select: none;
         }
-        
+
         .scrollbar-hide::-webkit-scrollbar {
-            display: none;
+          display: none;
         }
+
         .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
-      `}} />
+      ` }} />
     </div>
   );
 }
