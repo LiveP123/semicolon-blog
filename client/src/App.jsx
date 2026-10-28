@@ -7,6 +7,7 @@ import Home from './pages/Home.jsx';
 import PostPage from './pages/PostPage.jsx';
 import About from './pages/About.jsx';
 import Admin from './pages/Admin.jsx';
+import ContactModal from './components/ContactModal.jsx';
 
 function parseRoute() {
   const pathname = window.location.pathname.replace(/^\/+/, '');
@@ -41,6 +42,7 @@ function AppContent() {
   const [currentPage, setCurrentPage] = useState(() => parseRoute().page);
   const [postId, setPostId] = useState(() => parseRoute().postId);
   const [activeCategory, setActiveCategory] = useState('הכל');
+  const [isContactOpen, setIsContactOpen] = useState(false);
 
   useEffect(() => {
     const syncFromUrl = () => {
@@ -90,7 +92,7 @@ function AppContent() {
     <div className="transition-all duration-700 min-h-screen bg-[#FDFBF7] dark:bg-slate-900 text-[#5c4a3d] dark:text-[#d4c8be] relative z-0 flex flex-col justify-between">
       <AbstractBackground />
 
-      <div className="relative z-10">
+      <div className="relative z-10 flex-1 flex flex-col">
         <Header navigateTo={navigateTo} />
 
         <CompassMenu
@@ -100,12 +102,24 @@ function AppContent() {
           setActiveCategory={setActiveCategory}
         />
 
-        <main>{renderPage()}</main>
+        <main className="flex-1">{renderPage()}</main>
       </div>
 
       <footer className="relative z-10 py-8 text-center text-xs font-light text-stone-400 dark:text-stone-600 tracking-wider">
-        Designed & Built by CWeb
+        Designed & Built by{' '}
+        <button
+          type="button"
+          onClick={() => setIsContactOpen(true)}
+          className="underline font-normal hover:text-stone-200 dark:hover:text-stone-300 transition-colors cursor-pointer"
+        >
+          CWeb
+        </button>
       </footer>
+
+      <ContactModal
+        isOpen={isContactOpen}
+        onClose={() => setIsContactOpen(false)}
+      />
 
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap');

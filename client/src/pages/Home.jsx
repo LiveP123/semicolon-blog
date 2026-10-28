@@ -33,21 +33,23 @@ export default function Home({ activeCategory, navigateTo }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetch('http://localhost:5000/api/posts')
-      .then((res) => {
-        if (!res.ok) throw new Error('שגיאה בטעינת הפוסטים');
-        return res.json();
-      })
-      .then((data) => {
-        setPosts(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, []);
+useEffect(() => {
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+  fetch(`${API_URL}/api/posts`)
+    .then((res) => {
+      if (!res.ok) throw new Error('שגיאה בטעינת הפוסטים');
+      return res.json();
+    })
+    .then((data) => {
+      setPosts(data);
+      setLoading(false);
+    })
+    .catch((err) => {
+      setError(err.message);
+      setLoading(false);
+    });
+}, []);
 
   const filteredPosts = activeCategory === 'הכל' 
     ? posts 
